@@ -73,7 +73,7 @@ public class BasicGameApp extends GameApplication {
         resetButton.setPrefHeight(60);
         resetButton.setStyle("-fx-font-size: 16px; -fx-background-radius: 10;");
         resetButton.setOnAction(e -> resetGame());
-
+        
         addUINode(title);
         addUINode(startText);
         addUINode(targetText);
