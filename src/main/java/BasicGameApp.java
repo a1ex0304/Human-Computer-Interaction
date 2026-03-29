@@ -9,13 +9,18 @@ import javafx.scene.shape.Rectangle;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
+import java.util.List;
+
 public class BasicGameApp extends GameApplication {
+
+    public LevelManager levelManager = new LevelManager();
+    private Level currentLevel;
 
     public static BasicGameApp instance;
 
-    private int startValue = 5;
-    private int targetValue = 12;
-    private int currentValue = startValue;
+    private int startValue;
+    private int targetValue;
+    private int currentValue;
 
     private boolean gameWon = false;
 
@@ -32,12 +37,15 @@ public class BasicGameApp extends GameApplication {
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setWidth(800);
-        settings.setHeight(600);
+        settings.setHeight(800);
         settings.setTitle("EquationFlow");
     }
 
     @Override
     protected void initGame() {
+        currentLevel = levelManager.getCurrentLevel();
+        loadLevel(currentLevel);
+    
         Text title = new Text("EquationFlow");
         title.setTranslateX(300);
         title.setTranslateY(50);
@@ -80,11 +88,11 @@ public class BasicGameApp extends GameApplication {
                 .view(new Rectangle(480, 30, Color.DARKGRAY))
                 .with(new SlotComponent("BOTTOM"))
                 .buildAndAttach();
-
-        spawnNumberPipe(1, 150, 400);
-        spawnNumberPipe(-9, 150, 450);
-        spawnNumberPipe(5, 150, 500);
-        spawnNumberPipe(11, 150, 550);
+        
+        var pipeOptions = currentLevel.getPipeOptions();
+        for (int i = 0; i < pipeOptions.size(); i++) {
+            spawnNumberPipe(pipeOptions.get(i), 150, 400 + i*50);
+        }
 
         var resetButton = getUIFactoryService().newButton("Reset");
         resetButton.setTranslateX(650);
@@ -115,6 +123,14 @@ public class BasicGameApp extends GameApplication {
         onKeyDown(KeyCode.DIGIT1, () -> applyOperation());
         onKeyDown(KeyCode.DIGIT2, () -> applyOperation());
         onKeyDown(KeyCode.R, this::resetGame);
+    }
+
+    private void loadLevel(Level level) {
+        currentLevel = level;
+        startValue = level.getStartValue();
+        targetValue = level.getTargetValue();
+        currentValue = startValue;
+        gameWon = false;
     }
 
     // Applies a + or - operation to the current value
@@ -167,6 +183,7 @@ public class BasicGameApp extends GameApplication {
         currentValue += slot3Value;
 
         //currentValue += value;
+        updateUI();
         checkGameState();
     }
 
@@ -178,7 +195,16 @@ public class BasicGameApp extends GameApplication {
         currentValue = startValue;
         gameWon = false;
         messageText.setText("");
+        resetPipePositions();
         updateUI();
+    }
+
+    public void resetPipePositions(){
+        List<Entity> pipes = FXGL.getGameWorld().getEntitiesByComponent(NumberPipeComponent.class);
+        for (Entity pipeEntity : pipes) {
+            NumberPipeComponent pipe = pipeEntity.getComponent(NumberPipeComponent.class);
+            pipe.reset();
+        }
     }
 
     private void updateUI() {

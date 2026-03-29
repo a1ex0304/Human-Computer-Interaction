@@ -4,12 +4,13 @@ import javafx.scene.input.MouseEvent;
 
 public class NumberPipeComponent extends Component {
 
-    private BasicGameApp game;
     private int value;
+    private int sign = 1; 
     private double dragOffsetX;
     private double dragOffsetY;
     private SlotComponent currentSlot;
     private NumberPipeView numberPipeView;
+    private double x,y; // pos to reset back to
 
     public NumberPipeComponent(int value) {
         this.value = value;
@@ -17,6 +18,8 @@ public class NumberPipeComponent extends Component {
 
     @Override
     public void onAdded() {
+        x = entity.getX();
+        y = entity.getY();
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
             dragOffsetX = e.getSceneX() - entity.getX();
             dragOffsetY = e.getSceneY() - entity.getY();
@@ -39,6 +42,20 @@ public class NumberPipeComponent extends Component {
 
         numberPipeView = entity.getViewComponent().getChild(0, NumberPipeView.class);
         numberPipeView.SetPipeComponent(this);
+    }
+
+    public void reset() {
+        sign = 1;
+        entity.setX(x);
+        entity.setY(y);
+        
+        if (currentSlot == null) {
+            return;
+        }
+        currentSlot.setPipe(null);
+        currentSlot = null;
+        BasicGameApp.instance.applyOperation();
+        numberPipeView.RefreshValue();
     }
 
     private void checkDrop() {
@@ -79,12 +96,12 @@ public class NumberPipeComponent extends Component {
     }
 
     public void invertValue() {
-        value *= -1;
+        sign *= -1;
         BasicGameApp.instance.applyOperation();
         numberPipeView.RefreshValue();
     }
 
     public int getValue() {
-        return value;
+        return value * sign;
     }
 }
