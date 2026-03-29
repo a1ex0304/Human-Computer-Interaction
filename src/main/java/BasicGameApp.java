@@ -27,7 +27,9 @@ public class BasicGameApp extends GameApplication {
     private Text goalText;
     private Button nextLevelButton;
 
-    public BasicGameApp() { instance = this; }
+    public BasicGameApp() {
+        instance = this;
+    }
 
     @Override
     protected void initSettings(GameSettings settings) {
@@ -177,5 +179,7 @@ public class BasicGameApp extends GameApplication {
         }
     }
 
-    public static void main(String[] args) { launch(args); }
+    public static void main(String[] args) {
+        launch(args);
+    }
 }
