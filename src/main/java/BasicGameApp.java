@@ -8,7 +8,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.control.Button;
+import javafx.scene.layout.VBox;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.geometry.Pos;
+import javafx.geometry.Insets;
 import java.util.List;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -26,6 +32,8 @@ public class BasicGameApp extends GameApplication {
     private Text feedbackText;
     private Text goalText;
     private Button nextLevelButton;
+    private StackPane winScreenOverlay;
+    private StackPane warningOverlay;
 
     public BasicGameApp() {
         instance = this;
@@ -161,21 +169,101 @@ public class BasicGameApp extends GameApplication {
         boolean reachedTarget = Math.abs(finalX - targetX) < 5;
 
         if (reachedTarget && allSlotsFilled) {
-            feedbackText.setText("Correct! 3 Pipes Used.");
-            feedbackText.setFill(Color.LIGHTGREEN);
-
-            if (levelManager.hasNextLevel()) {
-                nextLevelButton.setVisible(true);
-            } else {
-                feedbackText.setText("Game Complete!");
-            }
+            showWinScreen();
         } else if (reachedTarget && !allSlotsFilled) {
-            feedbackText.setText("Target hit! But you must use 3 pipes.");
-            feedbackText.setFill(Color.ORANGE);
-            nextLevelButton.setVisible(false);
+            showWarningScreen();
         } else {
             feedbackText.setText("");
             nextLevelButton.setVisible(false);
+        }
+    }
+
+    private void showWinScreen() {
+        feedbackText.setText("");
+
+        Rectangle overlay = new Rectangle(1000, 750, Color.rgb(0, 0, 0, 0.7));
+
+        VBox content = new VBox(30);
+        content.setAlignment(Pos.CENTER);
+        content.setPadding(new Insets(40));
+        content.setStyle("-fx-background-color: #2c3e50; -fx-background-radius: 20; -fx-border-color: #27ae60; -fx-border-width: 3; -fx-border-radius: 20;");
+        content.setMaxWidth(500);
+        content.setMaxHeight(350);
+
+        Text title = new Text("Level Complete!");
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 36));
+        title.setFill(Color.web("#27ae60"));
+
+        Text subtitle = new Text("You solved Level " + currentLevel.getLevelNumber());
+        subtitle.setFont(Font.font("Verdana", 20));
+        subtitle.setFill(Color.LIGHTGRAY);
+
+        HBox buttonBox = new HBox(30);
+        buttonBox.setAlignment(Pos.CENTER);
+
+        Button backBtn = new Button("Back");
+        backBtn.setStyle("-fx-font-size: 18px; -fx-background-color: #7f8c8d; -fx-text-fill: white; -fx-cursor: hand; -fx-padding: 12 30 12 30; -fx-background-radius: 10;");
+        backBtn.setOnAction(e -> hideWinScreen(true));
+
+        Button nextBtn = new Button("Next Level");
+        nextBtn.setStyle("-fx-font-size: 18px; -fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand; -fx-padding: 12 30 12 30; -fx-background-radius: 10;");
+        nextBtn.setOnAction(e -> {
+            if (levelManager.hasNextLevel()) {
+                hideWinScreen(false);
+                levelManager.nextLevel();
+                loadLevel();
+            }
+        });
+
+        buttonBox.getChildren().addAll(backBtn, nextBtn);
+        content.getChildren().addAll(title, subtitle, buttonBox);
+
+        winScreenOverlay = new StackPane(overlay, content);
+        addUINode(winScreenOverlay, 0, 0);
+    }
+
+    private void hideWinScreen(boolean showNextButton) {
+        if (winScreenOverlay != null) {
+            removeUINode(winScreenOverlay);
+            winScreenOverlay = null;
+        }
+        nextLevelButton.setVisible(showNextButton);
+    }
+
+    private void showWarningScreen() {
+        feedbackText.setText("");
+
+        Rectangle overlay = new Rectangle(1000, 750, Color.rgb(0, 0, 0, 0.7));
+
+        VBox content = new VBox(30);
+        content.setAlignment(Pos.CENTER);
+        content.setPadding(new Insets(40));
+        content.setStyle("-fx-background-color: #2c3e50; -fx-background-radius: 20; -fx-border-color: #e67e22; -fx-border-width: 3; -fx-border-radius: 20;");
+        content.setMaxWidth(500);
+        content.setMaxHeight(350);
+
+        Text title = new Text("Almost!");
+        title.setFont(Font.font("Verdana", FontWeight.BOLD, 36));
+        title.setFill(Color.web("#e67e22"));
+
+        Text subtitle = new Text("You hit the target, but you must use all 3 pipes.");
+        subtitle.setFont(Font.font("Verdana", 18));
+        subtitle.setFill(Color.LIGHTGRAY);
+
+        Button okayBtn = new Button("Okay");
+        okayBtn.setStyle("-fx-font-size: 18px; -fx-background-color: #e67e22; -fx-text-fill: white; -fx-cursor: hand; -fx-padding: 12 40 12 40; -fx-background-radius: 10;");
+        okayBtn.setOnAction(e -> hideWarningScreen());
+
+        content.getChildren().addAll(title, subtitle, okayBtn);
+
+        warningOverlay = new StackPane(overlay, content);
+        addUINode(warningOverlay, 0, 0);
+    }
+
+    private void hideWarningScreen() {
+        if (warningOverlay != null) {
+            removeUINode(warningOverlay);
+            warningOverlay = null;
         }
     }
 
