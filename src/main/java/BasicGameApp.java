@@ -1,4 +1,4 @@
-package com.example.demo1;
+//package com.example.demo1;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
@@ -22,8 +22,10 @@ import static com.almasb.fxgl.dsl.FXGL.*;
 public class BasicGameApp extends GameApplication {
 
     public static final int UNIT_WIDTH = 42;
+    public static final int PIPE_HEIGHT = 40;
     public static final int START_NUM = 0;
     public static final int OFFSET_X = 65;
+    public static final int OFFSET_Y = 110;
 
     public LevelManager levelManager = new LevelManager();
     public static BasicGameApp instance;
@@ -85,12 +87,12 @@ public class BasicGameApp extends GameApplication {
         });
         addUINode(nextLevelButton, 820, 35);
 
-        drawNumberBar(110);
-        drawNumberBar(520);
+        drawNumberBar(OFFSET_Y);
+        drawNumberBar(OFFSET_Y + PIPE_HEIGHT*4);
 
-        spawnSlot(210, "TOP");
-        spawnSlot(310, "MIDDLE");
-        spawnSlot(410, "BOTTOM");
+        spawnSlot(OFFSET_Y + PIPE_HEIGHT*1, "TOP", "#000000");
+        spawnSlot(OFFSET_Y + PIPE_HEIGHT*2, "MIDDLE", "#444444");
+        spawnSlot(OFFSET_Y + PIPE_HEIGHT*3, "BOTTOM", "#000000");
 
         var options = currentLevel.getPipeOptions();
         for (int i = 0; i < options.size(); i++) {
@@ -99,19 +101,19 @@ public class BasicGameApp extends GameApplication {
     }
 
     private void drawNumberBar(double y) {
-        entityBuilder().at(OFFSET_X - 25, y).view(new Rectangle(850, 45, Color.web("#95a5a6"))).buildAndAttach();
+        entityBuilder().at(OFFSET_X, y).view(new Rectangle(UNIT_WIDTH*20, 40, Color.web("#95a5a6"))).buildAndAttach();
         for (int i = 0; i <= 19; i++) {
             Text num = new Text(String.valueOf(START_NUM + i));
             num.setFill(Color.WHITE);
             num.setFont(Font.font("Verdana", 14));
-            num.setTranslateX(OFFSET_X + (i * UNIT_WIDTH) - 8);
+            num.setTranslateX(OFFSET_X + (i * UNIT_WIDTH) + UNIT_WIDTH/2 - (i >= 10 ? 10 : 5));
             num.setTranslateY(y + 25);
             addUINode(num);
         }
     }
 
-    private void spawnSlot(double y, String id) {
-        Rectangle slotRect = new Rectangle(840, 40, Color.web("white", 0.05));
+    private void spawnSlot(double y, String id, String color) {
+        Rectangle slotRect = new Rectangle(UNIT_WIDTH*20, 40, Color.web(color, 0.1));
         SlotComponent slot = new SlotComponent(id, slotRect);
         entityBuilder()
                 .at(OFFSET_X, y)
@@ -180,9 +182,9 @@ public class BasicGameApp extends GameApplication {
                 } else {
                     sb.append(" - ").append(Math.abs(val));
                 }
-                sb.append(" = ").append(runningTotal);
             }
         }
+        sb.append(" = ").append(runningTotal);
 
         equationText.setText(sb.toString());
     }

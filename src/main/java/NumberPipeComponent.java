@@ -1,4 +1,4 @@
-package com.example.demo1;
+//package com.example.demo1;
 import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.dsl.FXGL;
 import javafx.scene.input.MouseEvent;
@@ -32,24 +32,24 @@ public class NumberPipeComponent extends Component {
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
             entity.setX(e.getSceneX() - dragOffsetX);
             entity.setY(e.getSceneY() - dragOffsetY);
-            updateHoveredSlot();
+            updateHoveredSlot(e);
         });
 
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_RELEASED, e -> {
             entity.setZIndex(0);
             clearHoveredSlot();
-            checkDrop();
+            checkDrop(e);
         });
 
         ((NumberPipeView)entity.getViewComponent().getChildren().get(0)).SetPipeComponent(this);
     }
 
-    private void updateHoveredSlot() {
+    private void updateHoveredSlot(MouseEvent e) {
         var slots = FXGL.getGameWorld().getEntitiesByComponent(SlotComponent.class);
         SlotComponent newHovered = null;
 
         for (var slotEntity : slots) {
-            if (Math.abs(entity.getY() - slotEntity.getY()) < 50) {
+            if (Math.abs(e.getY() - slotEntity.getY()) < BasicGameApp.PIPE_HEIGHT) {
                 newHovered = slotEntity.getComponent(SlotComponent.class);
                 break;
             }
@@ -71,12 +71,12 @@ public class NumberPipeComponent extends Component {
         }
     }
 
-    private void checkDrop() {
+    private void checkDrop(MouseEvent e) {
         var slots = FXGL.getGameWorld().getEntitiesByComponent(SlotComponent.class);
         SlotComponent bestSlot = null;
 
         for (var slotEntity : slots) {
-            if (Math.abs(entity.getY() - slotEntity.getY()) < 50) {
+            if (Math.abs(e.getY() - slotEntity.getY()) < BasicGameApp.PIPE_HEIGHT) {
                 bestSlot = slotEntity.getComponent(SlotComponent.class);
                 break;
             }

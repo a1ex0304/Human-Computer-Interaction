@@ -1,4 +1,4 @@
-package com.example.demo1;
+//package com.example.demo1;
 import javafx.scene.Group;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -12,38 +12,46 @@ import javafx.animation.FillTransition;
 import javafx.util.Duration;
 
 public class NumberPipeView extends Group {
+    public static final int PIPE_BODY_THICKNESS = 26;
+
+ 
+
+
     private NumberPipeComponent pipe;
     private Rectangle body = new Rectangle();
-    private Rectangle capL = new Rectangle(12, 40);
-    private Rectangle capR = new Rectangle(12, 40);
+    private Rectangle capStart = new Rectangle(42, 12);
+    private Rectangle capEnd = new Rectangle(42, 12);
     private Text valText = new Text();
     private Button flipBtn = new Button("🔄");
+    private StackPane label;
 
     public NumberPipeView() {
-        body.setFill(Color.web("#7f8c8d")); body.setHeight(26); body.setY(7);
-        capL.setFill(Color.web("#784212")); capR.setFill(Color.web("#784212"));
+        body.setFill(Color.web("#7f8c8d")); body.setHeight(PIPE_BODY_THICKNESS); body.setX(BasicGameApp.UNIT_WIDTH/2); body.setY((BasicGameApp.PIPE_HEIGHT - PIPE_BODY_THICKNESS)/2);
+        capStart.setFill(Color.web("#784212"));
+        capEnd.setFill(Color.web("#784212")); capEnd.setY(BasicGameApp.PIPE_HEIGHT - 12);
 
         Circle circle = new Circle(16, Color.web("#f1c40f"));
         valText.setFont(Font.font("Verdana", FontWeight.BOLD, 16));
-        StackPane label = new StackPane(circle, valText);
+        label = new StackPane(circle, valText); label.setTranslateY(BasicGameApp.PIPE_HEIGHT/2 - 16);
 
         flipBtn.setStyle("-fx-background-radius: 20; -fx-background-color: #3498db; -fx-text-fill: white;");
-        flipBtn.setPrefSize(30, 30);
-        flipBtn.setTranslateY(-35);
+        flipBtn.setPrefSize(32, 32); flipBtn.setTranslateY(BasicGameApp.PIPE_HEIGHT/2 - 16);
 
-        getChildren().addAll(body, capL, capR, label, flipBtn);
+        getChildren().addAll(body, capStart, capEnd, label, flipBtn);
         flipBtn.setOnAction(e -> pipe.invertValue());
     }
 
     public void RefreshValue() {
-        double w = Math.abs(pipe.getValue()) * BasicGameApp.UNIT_WIDTH;
+        int pipeValue = pipe.getValue();
+        double w = Math.abs(pipeValue) * BasicGameApp.UNIT_WIDTH;
         body.setWidth(w);
-        capR.setX(w - 6);
-        valText.setText(String.valueOf(Math.abs(pipe.getValue())));
+        valText.setText(String.valueOf(pipeValue));
 
-        getChildren().get(3).setTranslateX(w / 2);
-        getChildren().get(3).setTranslateY(20);
-        flipBtn.setTranslateX(w / 2 - 15);
+        capStart.setX(pipeValue < 0 ? w : 0);
+        capEnd.setX(pipeValue < 0 ? 0 : w);
+
+        label.setTranslateX(w / 2 + BasicGameApp.UNIT_WIDTH - 16);
+        flipBtn.setTranslateX(w / 2 - 16);
     }
 
     public void SetPipeComponent(NumberPipeComponent p) {

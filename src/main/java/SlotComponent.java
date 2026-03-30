@@ -1,17 +1,20 @@
-package com.example.demo1;
+//package com.example.demo1;
 
 import com.almasb.fxgl.entity.component.Component;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 
 public class SlotComponent extends Component {
     private String id;
     private NumberPipeComponent currentSlot;
     private Rectangle slotRect;
+    private Paint slotColor;
 
     public SlotComponent(String id, Rectangle slotRect) {
         this.id = id;
         this.slotRect = slotRect;
+        slotColor = slotRect.getFill();
     }
 
     public String getId() {
@@ -35,7 +38,7 @@ public class SlotComponent extends Component {
 
     public void unhighlight() {
         if (slotRect != null) {
-            slotRect.setFill(Color.web("white", 0.05));
+            slotRect.setFill(slotColor);
         }
     }
 }
