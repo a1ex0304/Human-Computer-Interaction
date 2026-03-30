@@ -8,6 +8,7 @@ public class NumberPipeComponent extends Component {
     private int sign = 1;
     private double dragOffsetX, dragOffsetY;
     private SlotComponent currentSlot;
+    private SlotComponent hoveredSlot;
     private double homeX, homeY;
 
     public NumberPipeComponent(int value) { this.baseValue = value; }
@@ -24,20 +25,50 @@ public class NumberPipeComponent extends Component {
                 currentSlot.setPipe(null);
                 currentSlot = null;
             }
+            clearHoveredSlot();
             entity.setZIndex(100);
         });
 
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
             entity.setX(e.getSceneX() - dragOffsetX);
             entity.setY(e.getSceneY() - dragOffsetY);
+            updateHoveredSlot();
         });
 
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_RELEASED, e -> {
             entity.setZIndex(0);
+            clearHoveredSlot();
             checkDrop();
         });
 
         ((NumberPipeView)entity.getViewComponent().getChildren().get(0)).SetPipeComponent(this);
+    }
+
+    private void updateHoveredSlot() {
+        var slots = FXGL.getGameWorld().getEntitiesByComponent(SlotComponent.class);
+        SlotComponent newHovered = null;
+
+        for (var slotEntity : slots) {
+            if (Math.abs(entity.getY() - slotEntity.getY()) < 50) {
+                newHovered = slotEntity.getComponent(SlotComponent.class);
+                break;
+            }
+        }
+
+        if (newHovered != hoveredSlot) {
+            clearHoveredSlot();
+            hoveredSlot = newHovered;
+            if (hoveredSlot != null) {
+                hoveredSlot.highlight();
+            }
+        }
+    }
+
+    private void clearHoveredSlot() {
+        if (hoveredSlot != null) {
+            hoveredSlot.unhighlight();
+            hoveredSlot = null;
+        }
     }
 
     private void checkDrop() {
@@ -55,6 +86,7 @@ public class NumberPipeComponent extends Component {
             currentSlot = bestSlot;
             currentSlot.setPipe(this);
             BasicGameApp.instance.refreshAllPipes();
+            ((NumberPipeView)entity.getViewComponent().getChildren().get(0)).flash();
         } else {
             entity.setX(homeX);
             entity.setY(homeY);

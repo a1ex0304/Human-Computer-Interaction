@@ -8,6 +8,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.scene.layout.StackPane;
 import javafx.scene.control.Button;
+import javafx.animation.FillTransition;
+import javafx.util.Duration;
 
 public class NumberPipeView extends Group {
     private NumberPipeComponent pipe;
@@ -46,5 +48,21 @@ public class NumberPipeView extends Group {
 
     public void SetPipeComponent(NumberPipeComponent p) {
         this.pipe = p; RefreshValue();
+    }
+
+    public void flash() {
+        Color original = (Color) body.getFill();
+        Color flashColor = Color.web("#2ecc71");
+
+        FillTransition ft1 = new FillTransition(Duration.millis(150), body, original, flashColor);
+        FillTransition ft2 = new FillTransition(Duration.millis(150), body, flashColor, original);
+        FillTransition ft3 = new FillTransition(Duration.millis(150), body, original, flashColor);
+        FillTransition ft4 = new FillTransition(Duration.millis(150), body, flashColor, original);
+
+        ft1.setOnFinished(e -> ft2.play());
+        ft2.setOnFinished(e -> ft3.play());
+        ft3.setOnFinished(e -> ft4.play());
+
+        ft1.play();
     }
 }

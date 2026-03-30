@@ -34,6 +34,7 @@ public class BasicGameApp extends GameApplication {
     private Button nextLevelButton;
     private StackPane winScreenOverlay;
     private StackPane warningOverlay;
+    private Text equationText;
 
     public BasicGameApp() {
         instance = this;
@@ -69,6 +70,10 @@ public class BasicGameApp extends GameApplication {
         feedbackText = getUIFactoryService().newText("", Color.WHITE, 24);
         addUINode(feedbackText, 450, 50);
 
+        equationText = getUIFactoryService().newText("", Color.WHITE, 26);
+        addUINode(equationText, 50, 85);
+        updateEquation();
+
         nextLevelButton = new Button("Next Level");
         nextLevelButton.setVisible(false);
         nextLevelButton.setStyle("-fx-font-size: 18px; -fx-background-color: #27ae60; -fx-text-fill: white; -fx-cursor: hand;");
@@ -80,16 +85,16 @@ public class BasicGameApp extends GameApplication {
         });
         addUINode(nextLevelButton, 820, 35);
 
-        drawNumberBar(80);
-        drawNumberBar(500);
+        drawNumberBar(110);
+        drawNumberBar(520);
 
-        spawnSlot(180, "TOP");
-        spawnSlot(280, "MIDDLE");
-        spawnSlot(380, "BOTTOM");
+        spawnSlot(210, "TOP");
+        spawnSlot(310, "MIDDLE");
+        spawnSlot(410, "BOTTOM");
 
         var options = currentLevel.getPipeOptions();
         for (int i = 0; i < options.size(); i++) {
-            spawnNumberPipe(options.get(i), 100 + (i * 130), 650);
+            spawnNumberPipe(options.get(i), 100 + (i * 130), 650);  
         }
     }
 
@@ -106,10 +111,12 @@ public class BasicGameApp extends GameApplication {
     }
 
     private void spawnSlot(double y, String id) {
+        Rectangle slotRect = new Rectangle(840, 40, Color.web("white", 0.05));
+        SlotComponent slot = new SlotComponent(id, slotRect);
         entityBuilder()
                 .at(OFFSET_X, y)
-                .view(new Rectangle(840, 40, Color.web("white", 0.05)))
-                .with(new SlotComponent(id))
+                .view(slotRect)
+                .with(slot)
                 .buildAndAttach();
     }
 
@@ -156,8 +163,33 @@ public class BasicGameApp extends GameApplication {
         return id.equals("BOTTOM") ? "MIDDLE" : "TOP";
     }
 
+    public void updateEquation() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(currentLevel.getStartValue());
+
+        String[] order = {"TOP", "MIDDLE", "BOTTOM"};
+        int runningTotal = currentLevel.getStartValue();
+
+        for (String id : order) {
+            var slot = getSlotById(id);
+            if (slot != null && slot.isFilled()) {
+                int val = slot.getPipe().getValue();
+                runningTotal += val;
+                if (val >= 0) {
+                    sb.append(" + ").append(val);
+                } else {
+                    sb.append(" - ").append(Math.abs(val));
+                }
+                sb.append(" = ").append(runningTotal);
+            }
+        }
+
+        equationText.setText(sb.toString());
+    }
+
     // --- UPDATED METHOD ---
     public void applyOperation() {
+        updateEquation();
         double finalX = getPipeEndX("BOTTOM");
         double targetX = getXForValue(currentLevel.getTargetValue());
 
