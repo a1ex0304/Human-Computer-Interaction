@@ -52,7 +52,7 @@ public class NumberPipeView extends Group {
 
     public void flash() {
         Color original = (Color) body.getFill();
-        Color flashColor = Color.web("#2ecc71");
+        Color flashColor = Color.web("#3498db");
 
         FillTransition ft1 = new FillTransition(Duration.millis(150), body, original, flashColor);
         FillTransition ft2 = new FillTransition(Duration.millis(150), body, flashColor, original);
