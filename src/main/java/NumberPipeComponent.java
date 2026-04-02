@@ -82,7 +82,14 @@ public class NumberPipeComponent extends Component {
             }
         }
 
-        if (bestSlot != null && !bestSlot.isFilled()) {
+        if (bestSlot != null) {
+            if (bestSlot.isFilled()) {
+                var overlapPipe = bestSlot.getPipe();
+                overlapPipe.entity.setX(overlapPipe.homeX);
+                overlapPipe.entity.setY(overlapPipe.homeY);
+                bestSlot.setPipe(null);
+                overlapPipe.currentSlot = null;
+            }
             currentSlot = bestSlot;
             currentSlot.setPipe(this);
             BasicGameApp.instance.refreshAllPipes();

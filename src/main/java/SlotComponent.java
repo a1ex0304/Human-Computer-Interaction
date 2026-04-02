@@ -31,7 +31,7 @@ public class SlotComponent extends Component {
     }
 
     public void highlight() {
-        if (slotRect != null && !isFilled()) {
+        if (slotRect != null /* && !isFilled() */) {
             slotRect.setFill(Color.web("white", 0.3));
         }
     }

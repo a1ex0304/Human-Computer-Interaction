@@ -4,6 +4,8 @@ import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 import com.almasb.fxgl.dsl.FXGL;
 import com.almasb.fxgl.entity.Entity;
+import com.almasb.fxgl.ui.FontType;
+
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
@@ -87,8 +89,8 @@ public class BasicGameApp extends GameApplication {
         });
         addUINode(nextLevelButton, 820, 35);
 
-        drawNumberBar(OFFSET_Y);
-        drawNumberBar(OFFSET_Y + PIPE_HEIGHT*4);
+        drawNumberBar(OFFSET_Y, currentLevel.getStartValue());
+        drawNumberBar(OFFSET_Y + PIPE_HEIGHT*4, currentLevel.getTargetValue());
 
         spawnSlot(OFFSET_Y + PIPE_HEIGHT*1, "TOP", "#000000");
         spawnSlot(OFFSET_Y + PIPE_HEIGHT*2, "MIDDLE", "#444444");
@@ -96,16 +98,24 @@ public class BasicGameApp extends GameApplication {
 
         var options = currentLevel.getPipeOptions();
         for (int i = 0; i < options.size(); i++) {
-            spawnNumberPipe(options.get(i), 100 + (i * 130), 650);  
+            spawnNumberPipe(options.get(i), 100, OFFSET_Y + PIPE_HEIGHT * 6 + (i * 50));  
         }
     }
 
-    private void drawNumberBar(double y) {
-        entityBuilder().at(OFFSET_X, y).view(new Rectangle(UNIT_WIDTH*20, 40, Color.web("#95a5a6"))).buildAndAttach();
-        for (int i = 0; i <= 19; i++) {
-            Text num = new Text(String.valueOf(START_NUM + i));
-            num.setFill(Color.WHITE);
-            num.setFont(Font.font("Verdana", 14));
+    private void drawNumberBar(double y, int goal) {
+        entityBuilder().at(OFFSET_X + UNIT_WIDTH * (goal - START_NUM) + NumberPipeView.PIPE_CAP_PADDING_X, y).view(new Rectangle(NumberPipeView.PIPE_CAP_WIDTH, PIPE_HEIGHT, NumberPipeView.PIPECOLOR_CAP)).buildAndAttach();
+        entityBuilder().at(OFFSET_X, y + NumberPipeView.PIPE_BODY_PADDING_Y).view(new Rectangle(UNIT_WIDTH*20, NumberPipeView.PIPE_BODY_THICKNESS, Color.web("#95a5a6"))).buildAndAttach();
+        for (int i = 0; i < 20; i++) {
+            int displayValue = i + START_NUM;
+            boolean isGoal = displayValue == goal;
+            Text num = new Text(String.valueOf(displayValue));
+            if (isGoal) {
+                num.setFill(Color.YELLOW);
+                num.setFont(Font.font("Cambia", FontWeight.EXTRA_BOLD, 16));
+            } else {
+                num.setFill(Color.WHITE);
+                num.setFont(Font.font("Cambia", 14));
+            }
             num.setTranslateX(OFFSET_X + (i * UNIT_WIDTH) + UNIT_WIDTH/2 - (i >= 10 ? 10 : 5));
             num.setTranslateY(y + 25);
             addUINode(num);
