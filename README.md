@@ -3,7 +3,7 @@
 EquationFlow is a Remastered version of Fitting Pipes(A Balancing addition and subtraction expressions game made for Grade School Kids). EquationFlow features an overhaul of design to make it much more minimalistic and simple for users. 
 
 # Quick Start
-1. Install IntelliJ
+1. Install IntelliJ (.exe Windows version)
 
 2. Open Project: Launch IntelliJ IDEA, select Open, and choose the project root folder.
 
