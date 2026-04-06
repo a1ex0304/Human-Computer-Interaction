@@ -5,7 +5,7 @@ EquationFlow is a Remastered version of Fitting Pipes(A Balancing addition and s
 
 1. Download this GitHub's Zip File and extract it all
    
-2. Install IntelliJ (.exe Windows version), and must have Java 21
+2. Install IntelliJ (.exe Windows version), and Java 21
 
 3. Launch IntelliJ IDEA, select Open, and choose the project root folder.
   - Press setup JDK if not done yet
