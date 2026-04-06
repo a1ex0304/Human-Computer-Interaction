@@ -3,7 +3,7 @@ EquationFlow is a Remastered version of Fitting Pipes(A Balancing addition and s
 
 # How to Run the Game
 
-1. Download thie GitHub's Zip File and extract it all
+1. Download this GitHub's Zip File and extract it all
    
 2. Install IntelliJ (.exe Windows version)
 
@@ -22,9 +22,18 @@ The objective of this game is to solve mathematical puzzles by creating a contin
 
 You are given a starting number (e.g., 5) on the top bar and a target number (e.g., 12) on the bottom bar. Your job is to select "number pipes" from your tray and place them into the three available slots (Top, Middle, and Bottom) so that the final position of the pipe chain matches the target number.
 
+The UI provides clear START and GOAL indicators on the number bars to help the user visualize the required equation path.
+
 # Mechanics
 **Vector Movement:** Each pipe represents a numerical value. If you place a 5 pipe, it physically spans 5 units on the board.
 
 **The Chain:** The pipes must flow from one to the next. The second pipe starts exactly where the first one ends, and the third starts where the second ends.
 
-**Inversion (Subtraction):** If your chain goes too far to the right, you can click the 🔄 (Flip) button on a pipe. This turns it into a negative value, making the pipe face left and "subtracting" from your total distance.
+**Inversion (Subtraction):** If your chain goes too far to the right, you can click the 🔄 (Flip) button located on a pipe. This turns it into a negative value, making the pipe face left and "subtracting" from your total distance.
+
+# Winning a Level
+You win when the very end of the bottom-most pipe aligns perfectly with the vertical line of your Goal Value.
+
+**The Visual Feedback:** When the math is correct, the UI displays "Target Reached! Correct!" in bright green.
+
+**Efficiency:** While any combination that hits the target works, the challenge lies in managing your limited pipe options to find the exact sum needed.
