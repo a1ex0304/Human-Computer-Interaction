@@ -40,14 +40,18 @@ public class BasicGameApp extends GameApplication {
     private Text equationText;
 
     private Button nextLevelButton;
+    // Buttons added for the undo/redo feature
     private Button undoButton;
     private Button redoButton;
 
     private StackPane winScreenOverlay;
     private StackPane warningOverlay;
 
+    // Stores older board states so the player can go back a move
     private final Deque<GameState> undoStack = new ArrayDeque<>();
+    // Stores states that were undone so they can be redone
     private final Deque<GameState> redoStack = new ArrayDeque<>();
+    // Stops the game from saving a new state while an old one is being restored
     private boolean restoringState = false;
 
     public BasicGameApp() {
@@ -69,6 +73,7 @@ public class BasicGameApp extends GameApplication {
     private void loadLevel() {
         getGameWorld().getEntitiesCopy().forEach(Entity::removeFromWorld);
         getGameScene().clearUINodes();
+        // Reset undo/redo history when a new level loads
         undoStack.clear();
         redoStack.clear();
         restoringState = false;
@@ -136,6 +141,7 @@ public class BasicGameApp extends GameApplication {
         feedbackText.setFill(Color.web("#d6f5ff"));
         addUINode(feedbackText, 0, 185);
 
+        // Builds the undo/redo buttons in the top right
         createTopRightButtons();
 
         drawNumberBar(OFFSET_Y, currentLevel.getStartValue());
@@ -162,9 +168,11 @@ public class BasicGameApp extends GameApplication {
 
         updateEquation();
         applyOperation();
+        // Save the starting board so undo has a clean base state
         rememberInitialState();
     }
 
+    // Creates the top-right control buttons, including undo and redo
     private void createTopRightButtons() {
         String glassButtonStyle = "-fx-font-size: 15px;"
                 + "-fx-font-weight: bold;"
@@ -177,10 +185,12 @@ public class BasicGameApp extends GameApplication {
                 + "-fx-padding: 10 18 10 18;"
                 + "-fx-cursor: hand;";
 
+        // Undo returns the board to the previous saved state
         undoButton = new Button("↶ Undo");
         undoButton.setStyle(glassButtonStyle);
         undoButton.setOnAction(e -> undo());
 
+        // Redo reapplies a move that was just undone
         redoButton = new Button("↷ Redo");
         redoButton.setStyle(glassButtonStyle);
         redoButton.setOnAction(e -> redo());
@@ -202,6 +212,7 @@ public class BasicGameApp extends GameApplication {
             }
         });
 
+        // Put undo/redo beside the existing next level button
         HBox buttonRow = new HBox(12, undoButton, redoButton, nextLevelButton);
         buttonRow.setAlignment(Pos.CENTER_RIGHT);
         addUINode(buttonRow, 610, 55);
@@ -462,6 +473,7 @@ public class BasicGameApp extends GameApplication {
         }
     }
 
+    // Saves the very first board state for the level
     public void rememberInitialState() {
         undoStack.clear();
         redoStack.clear();
@@ -469,6 +481,7 @@ public class BasicGameApp extends GameApplication {
         updateUndoRedoButtons();
     }
 
+    // Saves the current board before the player makes a new move
     public void rememberStateForUndo() {
         if (restoringState) {
             return;
@@ -478,10 +491,12 @@ public class BasicGameApp extends GameApplication {
         if (undoStack.isEmpty() || !currentSnapshot.sameAs(undoStack.peek())) {
             undoStack.push(currentSnapshot);
         }
+        // Once a new move is made, old redo history should be cleared
         redoStack.clear();
         updateUndoRedoButtons();
     }
 
+    // Moves the game back one saved step
     public void undo() {
         if (undoStack.isEmpty()) {
             return;
@@ -491,6 +506,7 @@ public class BasicGameApp extends GameApplication {
         GameState previousSnapshot = undoStack.pop();
 
         if (!currentSnapshot.sameAs(previousSnapshot)) {
+            // Save the current state so redo can bring it back
             redoStack.push(currentSnapshot);
             restoreState(previousSnapshot);
         }
@@ -498,6 +514,7 @@ public class BasicGameApp extends GameApplication {
         updateUndoRedoButtons();
     }
 
+    // Reapplies a move that was undone
     public void redo() {
         if (redoStack.isEmpty()) {
             return;
@@ -507,6 +524,7 @@ public class BasicGameApp extends GameApplication {
         GameState redoSnapshot = redoStack.pop();
 
         if (!currentSnapshot.sameAs(redoSnapshot)) {
+            // Save where we are now in case the player wants to undo again
             undoStack.push(currentSnapshot);
             restoreState(redoSnapshot);
         }
@@ -514,6 +532,7 @@ public class BasicGameApp extends GameApplication {
         updateUndoRedoButtons();
     }
 
+    // Puts every pipe back where it was in a saved snapshot
     private void restoreState(GameState state) {
         restoringState = true;
 
@@ -522,6 +541,7 @@ public class BasicGameApp extends GameApplication {
         feedbackText.setText("");
         nextLevelButton.setVisible(false);
 
+        // Clear the current slot setup first
         for (var slotEntity : getGameWorld().getEntitiesByComponent(SlotComponent.class)) {
             slotEntity.getComponent(SlotComponent.class).setPipe(null);
         }
@@ -539,6 +559,7 @@ public class BasicGameApp extends GameApplication {
         applyOperation();
     }
 
+    // Takes a snapshot of the board so it can be restored later
     private GameState captureCurrentState() {
         List<PipeSnapshot> pipeSnapshots = new ArrayList<>();
         for (NumberPipeComponent pipe : getAllPipes()) {
@@ -562,6 +583,7 @@ public class BasicGameApp extends GameApplication {
                 .toList();
     }
 
+    // Visually disables undo/redo when there is nothing to go back or forward to
     private void updateUndoRedoButtons() {
         if (undoButton != null) {
             boolean canUndo = !undoStack.isEmpty() && !captureCurrentState().sameAs(undoStack.peek());
@@ -576,6 +598,7 @@ public class BasicGameApp extends GameApplication {
         }
     }
 
+    // Stores one pipe's state for undo/redo
     private static class PipeSnapshot {
         private final int sign;
         private final double x;
@@ -600,6 +623,7 @@ public class BasicGameApp extends GameApplication {
         }
     }
 
+    // Stores the full board state at one moment
     private static class GameState {
         private final List<PipeSnapshot> pipes;
 

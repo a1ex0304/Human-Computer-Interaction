@@ -22,6 +22,7 @@ public class NumberPipeComponent extends Component {
         homeY = entity.getY();
 
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
+            // Save the board before the player starts moving this pipe
             BasicGameApp.instance.rememberStateForUndo();
             dragOffsetX = e.getSceneX() - entity.getX();
             dragOffsetY = e.getSceneY() - entity.getY();
@@ -119,6 +120,7 @@ public class NumberPipeComponent extends Component {
     }
 
     public void invertValue() {
+        // Save the current setup before flipping the sign
         BasicGameApp.instance.rememberStateForUndo();
         sign *= -1;
         ((NumberPipeView) entity.getViewComponent().getChildren().get(0)).RefreshValue();
@@ -128,6 +130,7 @@ public class NumberPipeComponent extends Component {
         BasicGameApp.instance.applyOperation();
     }
 
+    // Used by undo/redo to put this pipe back into an older saved state
     public void restoreState(int restoredSign, double restoredX, double restoredY, SlotComponent restoredSlot) {
         sign = restoredSign;
         currentSlot = restoredSlot;
