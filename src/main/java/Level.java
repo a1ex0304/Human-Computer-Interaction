@@ -3,6 +3,7 @@
 import java.util.Comparator;
 import java.util.List;
 
+// Represents a single game level with start/target values and pipe options
 public class Level {
     private final int levelNumber, startValue, targetValue;
     private final List<Integer> pipeOptions;
@@ -14,15 +15,19 @@ public class Level {
         this.pipeOptions = pipeOptions;
     }
 
+    // Starting number on the bar
     public int getStartValue() {
         return startValue;
     }
+    // Target number to reach
     public int getTargetValue() {
         return targetValue;
     }
+    // Available pipe values to choose from
     public List<Integer> getPipeOptions() {
         return pipeOptions; 
     }
+    // Level number
     public int getLevelNumber() {
         return levelNumber;
     }

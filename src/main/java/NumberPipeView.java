@@ -12,12 +12,16 @@ import javafx.scene.control.Button;
 import javafx.animation.FillTransition;
 import javafx.util.Duration;
 
+// Visual representation of a number pipe
 public class NumberPipeView extends Group {
+    // Pipe body thickness
     public static final int PIPE_BODY_THICKNESS = 26;
     public static final int PIPE_BODY_PADDING_Y = (BasicGameApp.PIPE_HEIGHT - PIPE_BODY_THICKNESS)/2;
+    // Pipe cap dimensions
     public static final int PIPE_CAP_WIDTH = 38;
     public static final int PIPE_CAP_PADDING_X = (BasicGameApp.UNIT_WIDTH - PIPE_CAP_WIDTH)/2;
 
+    // Colors for positive and negative values
     public static final Paint PIPECOLOR_VALUE_LABEL_POSITIVE = Color.web("#006eff");
     public static final Paint PIPECOLOR_VALUE_LABEL_NEGATIVE = Color.web("#ff0000");
 
@@ -49,6 +53,7 @@ public class NumberPipeView extends Group {
         flipBtn.setOnAction(e -> pipe.invertValue());
     }
 
+    // Update the visual display based on current pipe value
     public void RefreshValue() {
         int pipeValue = pipe.getValue();
         boolean isNegative = pipeValue < 0;
@@ -64,10 +69,12 @@ public class NumberPipeView extends Group {
         flipBtn.setTranslateX(w / 2 - 16);
     }
 
+    // Connect to the pipe component
     public void SetPipeComponent(NumberPipeComponent p) {
         this.pipe = p; RefreshValue();
     }
 
+    // Flash animation when pipe is dropped
     public void flash() {
         Color original = (Color) body.getFill();
         Color flashColor = Color.web("#3498db");

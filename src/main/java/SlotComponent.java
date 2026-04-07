@@ -5,6 +5,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.Paint;
 import javafx.scene.shape.Rectangle;
 
+// Represents a drop slot where pipes can be placed
 public class SlotComponent extends Component {
     private String id;
     private NumberPipeComponent currentSlot;
@@ -30,12 +31,14 @@ public class SlotComponent extends Component {
         return currentSlot != null;
     }
 
+    // Highlight the slot when a pipe is dragged over it
     public void highlight() {
         if (slotRect != null /* && !isFilled() */) {
             slotRect.setFill(Color.web("white", 0.3));
         }
     }
 
+    // Remove the highlight
     public void unhighlight() {
         if (slotRect != null) {
             slotRect.setFill(slotColor);
