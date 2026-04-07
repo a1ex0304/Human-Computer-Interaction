@@ -1,6 +1,6 @@
 //package com.example.demo1;
-import com.almasb.fxgl.entity.component.Component;
 import com.almasb.fxgl.dsl.FXGL;
+import com.almasb.fxgl.entity.component.Component;
 import javafx.scene.input.MouseEvent;
 
 // Handles pipe drag-and-drop and value flipping
@@ -12,46 +12,44 @@ public class NumberPipeComponent extends Component {
     private SlotComponent hoveredSlot;
     private double homeX, homeY;
 
-    public NumberPipeComponent(int value) { this.baseValue = value; }
+    public NumberPipeComponent(int value) {
+        this.baseValue = value;
+    }
 
     @Override
     public void onAdded() {
-        // Save original position for resetting
         homeX = entity.getX();
         homeY = entity.getY();
 
-        // Start dragging
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_PRESSED, e -> {
+            BasicGameApp.instance.rememberStateForUndo();
             dragOffsetX = e.getSceneX() - entity.getX();
             dragOffsetY = e.getSceneY() - entity.getY();
-            // Remove from current slot if placed
+
             if (currentSlot != null) {
                 currentSlot.setPipe(null);
                 currentSlot = null;
             }
+
             clearHoveredSlot();
             entity.setZIndex(100);
         });
 
-        // Dragging movement
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_DRAGGED, e -> {
             entity.setX(e.getSceneX() - dragOffsetX);
             entity.setY(e.getSceneY() - dragOffsetY);
             updateHoveredSlot(e);
         });
 
-        // Drop the pipe
         entity.getViewComponent().addEventHandler(MouseEvent.MOUSE_RELEASED, e -> {
             entity.setZIndex(0);
             clearHoveredSlot();
             checkDrop(e);
         });
 
-        // Connect to view
-        ((NumberPipeView)entity.getViewComponent().getChildren().get(0)).SetPipeComponent(this);
+        ((NumberPipeView) entity.getViewComponent().getChildren().get(0)).SetPipeComponent(this);
     }
 
-    // Track which slot the pipe is hovering over
     private void updateHoveredSlot(MouseEvent e) {
         var slots = FXGL.getGameWorld().getEntitiesByComponent(SlotComponent.class);
         SlotComponent newHovered = null;
@@ -72,7 +70,6 @@ public class NumberPipeComponent extends Component {
         }
     }
 
-    // Clear hover highlight
     private void clearHoveredSlot() {
         if (hoveredSlot != null) {
             hoveredSlot.unhighlight();
@@ -80,7 +77,6 @@ public class NumberPipeComponent extends Component {
         }
     }
 
-    // Check where to drop the pipe
     private void checkDrop(MouseEvent e) {
         var slots = FXGL.getGameWorld().getEntitiesByComponent(SlotComponent.class);
         SlotComponent bestSlot = null;
@@ -93,7 +89,6 @@ public class NumberPipeComponent extends Component {
         }
 
         if (bestSlot != null) {
-            // If slot already has a pipe, send it back home
             if (bestSlot.isFilled()) {
                 var overlapPipe = bestSlot.getPipe();
                 overlapPipe.entity.setX(overlapPipe.homeX);
@@ -101,20 +96,19 @@ public class NumberPipeComponent extends Component {
                 bestSlot.setPipe(null);
                 overlapPipe.currentSlot = null;
             }
-            // Place pipe in slot
+
             currentSlot = bestSlot;
             currentSlot.setPipe(this);
             BasicGameApp.instance.refreshAllPipes();
-            ((NumberPipeView)entity.getViewComponent().getChildren().get(0)).flash();
+            ((NumberPipeView) entity.getViewComponent().getChildren().get(0)).flash();
         } else {
-            // Return to original position if not dropped in a slot
             entity.setX(homeX);
             entity.setY(homeY);
         }
+
         BasicGameApp.instance.applyOperation();
     }
 
-    // Snap pipe to the correct position based on value
     public void snapTo(double targetStartX) {
         if (getValue() >= 0) {
             entity.setX(targetStartX);
@@ -124,15 +118,43 @@ public class NumberPipeComponent extends Component {
         entity.setY(currentSlot.getEntity().getY());
     }
 
-    // Flip between positive and negative
     public void invertValue() {
+        BasicGameApp.instance.rememberStateForUndo();
         sign *= -1;
-        ((NumberPipeView)entity.getViewComponent().getChildren().get(0)).RefreshValue();
-        if (currentSlot != null) BasicGameApp.instance.refreshAllPipes();
+        ((NumberPipeView) entity.getViewComponent().getChildren().get(0)).RefreshValue();
+        if (currentSlot != null) {
+            BasicGameApp.instance.refreshAllPipes();
+        }
         BasicGameApp.instance.applyOperation();
     }
 
-    // Get current value (positive or negative)
+    public void restoreState(int restoredSign, double restoredX, double restoredY, SlotComponent restoredSlot) {
+        sign = restoredSign;
+        currentSlot = restoredSlot;
+        if (currentSlot != null) {
+            currentSlot.setPipe(this);
+        }
+        entity.setX(restoredX);
+        entity.setY(restoredY);
+        ((NumberPipeView) entity.getViewComponent().getChildren().get(0)).RefreshValue();
+    }
+
+    public SlotComponent getCurrentSlot() {
+        return currentSlot;
+    }
+
+    public int getSign() {
+        return sign;
+    }
+
+    public double getHomeX() {
+        return homeX;
+    }
+
+    public double getHomeY() {
+        return homeY;
+    }
+
     public int getValue() {
         return baseValue * sign;
     }
